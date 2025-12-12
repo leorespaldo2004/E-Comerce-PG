@@ -1,0 +1,24 @@
+# Archivos y carpetas del entorno de desarrollo local (¡Muy Importante!)
+venv/
+.vscode/
+.idea/
+.env
+
+# Archivos de caché y compilación de Python
+__pycache__/
+*.pyc
+
+# Archivos de control de versiones
+.git
+.gitignore
+
+# Archivos de metadatos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de registro o logs (si los generas en tu proyecto)
+*.log
+logs/
+
+# Si usas Docker Compose (aunque no lo hemos visto, es una buena práctica incluirlo)
+docker-compose.yml
