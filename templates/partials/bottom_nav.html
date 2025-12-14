@@ -1,0 +1,207 @@
+<nav class="fixed bottom-0 left-0 z-50 w-full bg-white dark:bg-[#101622] border-t border-gray-200 dark:border-gray-800 pb-safe transition-all duration-300">
+    {# 
+        Security & Logic: 
+        Check if current_user is defined and not None before accessing attributes to avoid runtime errors.
+        Determine layout columns based on role (4 cols for admin to fit the new button, 3 for others).
+    #}
+    {% set is_admin = (current_user is defined and current_user and current_user.role == 'admin') %}
+    
+    <div class="grid h-16 w-full {{ 'grid-cols-4' if is_admin else 'grid-cols-3' }} mx-auto max-w-lg">
+
+        <a href="/" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200 ">
+                storefront
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200">
+                Catálogo
+            </span>
+        </a>
+
+        <a href="/favorites" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200">
+                favorite
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200">
+                Favoritos
+            </span>
+        </a>
+
+        <a href="/cart" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200 relative">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200">
+                shopping_cart
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200">
+                Carrito
+            </span>
+            {# Badge for cart count #}
+            <span id="nav-cart-count" class="cart-badge-btm hidden absolute top-3 right-6 h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm ring-1 ring-white dark:ring-[#101622]">0</span>
+        </a>
+
+        {% if is_admin %}
+            <a href="/product/new" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+                <div class="flex items-center justify-center w-10 h-8 rounded-xl transition-all duration-200
+                    {% if request is defined and '/product/new' in request.url.path %} bg-primary text-white shadow-md shadow-primary/30 {% else %} bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white {% endif %}">
+                    <span class="material-symbols-outlined text-2xl">add</span>
+                </div>
+                <span class="text-[10px] font-medium mt-1 transition-colors duration-200
+                    {% if request is defined and '/product/new' in request.url.path %} text-primary font-bold {% else %} text-primary/80 {% endif %}">
+                    Nuevo
+                </span>
+            </a>
+        {% else %}
+            <a href="/profile" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+                <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200
+                    {% if request is defined and '/profile' in request.url.path %} text-primary font-fill {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                    person
+                </span>
+                <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200
+                    {% if request is defined and '/profile' in request.url.path %} text-primary {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                    Perfil
+                </span>
+            </a>
+        {% endif %}
+
+    </div>
+</nav>
+
+<style>
+    /* Google Material Symbols 'Filled' variation class used for active states */
+    .font-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    
+    /* Safe area padding for modern mobile devices (iPhone Home Bar) */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+    /* Helper to display the badge correctly */
+    .cart-badge-btm.flex { display: flex; }
+</style>
+<nav class="fixed bottom-0 left-0 z-50 w-full bg-white dark:bg-[#101622] border-t border-gray-200 dark:border-gray-800 pb-safe transition-all duration-300">
+    {% set is_admin = current_user and current_user.role == 'admin' %}
+    <div class="grid h-16 w-full {{ 'grid-cols-4' if is_admin else 'grid-cols-3' }} mx-auto max-w-lg">
+        
+        <a href="/" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200 
+                {% if request.url.path == '/' %} text-primary font-fill {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                storefront
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200
+                {% if request.url.path == '/' %} text-primary {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                Catálogo
+            </span>
+        </a>
+
+        <a href="/favorites" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200
+                {% if '/favorites' in request.url.path %} text-primary font-fill {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                favorite
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200
+                {% if '/favorites' in request.url.path %} text-primary {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                Favoritos
+            </span>
+        </a>
+
+        <a href="/cart" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200 relative">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200
+                {% if '/cart' in request.url.path %} text-primary font-fill {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                shopping_cart
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200
+                {% if '/cart' in request.url.path %} text-primary {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                Carrito
+            </span>
+            <span class="cart-badge-btm hidden absolute top-3 right-6 h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm ring-1 ring-white dark:ring-[#101622]">0</span>
+        </a>
+
+        {% if is_admin %}
+            <a href="/product/new" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+                <div class="flex items-center justify-center w-10 h-8 rounded-xl transition-all duration-200
+                    {% if '/product/new' in request.url.path %} bg-primary text-white {% else %} bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white {% endif %}">
+                    <span class="material-symbols-outlined text-2xl">add</span>
+                </div>
+                <span class="text-[10px] font-medium mt-1 transition-colors duration-200
+                    {% if '/product/new' in request.url.path %} text-primary {% else %} text-primary/80 {% endif %}">
+                    Nuevo
+                </span>
+            </a>
+        {% endif %}
+
+    </div>
+</nav>
+
+<style>
+    /* Google Material Symbols 'Filled' variation class */
+    .font-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    
+    /* Safe area padding for modern mobile devices (iPhone Home Bar) */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+    /* Ensure the cart badge displays as flex when shown */
+    .cart-badge-btm.flex { display: flex; }
+</style>
+<nav class="fixed bottom-0 left-0 z-50 w-full bg-white dark:bg-[#101622] border-t border-gray-200 dark:border-gray-800 pb-safe">
+    <div class="grid h-16 w-full grid-cols-4 mx-auto max-w-lg">
+        
+        <a href="/" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200 
+                {% if request.url.path == '/' %} text-primary font-fill {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                storefront
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200
+                {% if request.url.path == '/' %} text-primary {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                Catálogo
+            </span>
+        </a>
+
+        <a href="/favorites" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200
+                {% if '/favorites' in request.url.path %} text-primary font-fill {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                favorite
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200
+                {% if '/favorites' in request.url.path %} text-primary {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                Favoritos
+            </span>
+        </a>
+
+        <a href="/cart" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200 relative">
+            <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200
+                {% if '/cart' in request.url.path %} text-primary font-fill {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                shopping_cart
+            </span>
+            <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200
+                {% if '/cart' in request.url.path %} text-primary {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                Carrito
+            </span>
+            <span id="nav-cart-count" class="hidden absolute top-3 right-6 h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">0</span>
+        </a>
+
+        {% if current_user and current_user.role == 'admin' %}
+            <a href="/product/new" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+                <div class="flex items-center justify-center w-10 h-8 rounded-xl bg-primary/10 text-primary mb-1 group-hover:bg-primary group-hover:text-white transition-all duration-200">
+                    <span class="material-symbols-outlined text-2xl">add</span>
+                </div>
+                <span class="text-[10px] font-medium text-primary">
+                    Nuevo
+                </span>
+            </a>
+        {% else %}
+            <a href="/profile" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors duration-200">
+                <span class="material-symbols-outlined text-2xl mb-1 group-hover:text-primary transition-colors duration-200
+                    {% if '/profile' in request.url.path %} text-primary font-fill {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                    person
+                </span>
+                <span class="text-[10px] font-medium group-hover:text-primary transition-colors duration-200
+                    {% if '/profile' in request.url.path %} text-primary {% else %} text-gray-500 dark:text-gray-400 {% endif %}">
+                    Perfil
+                </span>
+            </a>
+        {% endif %}
+
+    </div>
+</nav>
+
+<style>
+    .font-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    /* Safe area for iPhone home bar */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+</style>

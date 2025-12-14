@@ -1,0 +1,4 @@
+# .gitignore placeholder
+venv/
+__pycache__/
+.env

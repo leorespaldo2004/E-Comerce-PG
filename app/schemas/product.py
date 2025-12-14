@@ -1,0 +1,3 @@
+"""Product schema placeholder."""
+
+# Placeholder

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestionar Catálogo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-gray-200/80 bg-background-light/80 px-4 backdrop-blur-sm dark:border-gray-800/80 dark:bg-background-dark/80">
+    <div class="flex items-center gap-3">
+        <a href="/" class="material-symbols-outlined text-gray-800 dark:text-gray-200">arrow_back</a>
+        <h1 class="text-lg font-bold text-gray-900 dark:text-gray-100">Gestionar Catálogo</h1>
+    </div>
+    <div class="flex items-center gap-4">
+        <!-- Search icon (placeholder) -->
+        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">search</span>
+
+        <!-- User control dropdown -->
+        {% if current_user %}
+        <details id="user-controls-details" class="relative">
+            <summary class="flex items-center gap-2 cursor-pointer list-none"> 
+                <img id="user-avatar-catalog" src="{{ current_user.picture or '/static/images/default-avatar.png' }}" alt="avatar" class="h-10 w-10 rounded-full object-cover" />
+                {% set _parts = current_user.name.split(' ') %}
+                {% set display_name = _parts[0] ~ (" " ~ _parts[1] if _parts|length > 1 else "") %}
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ display_name }}</span>
+            </summary>
+            <div class="absolute right-0 mt-2 w-56 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-2">
+                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Mi perfil</a>
+                <a href="/cart" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Mis pedidos</a>
+                {% if current_user.role == 'admin' %}
+                <a href="/manage/catalog" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Gestionar catálogo</a>
+                {% endif %}
+                <a href="/settings" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Configuración</a>
+                <form action="/api/v1/auth/logout" method="get">
+                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700">Cerrar sesión</button>
+                </form>
+
+                <!-- Small avatar upload form inside dropdown -->
+                <form action="/api/v1/users/avatar" method="post" enctype="multipart/form-data" class="px-4 pt-2">
+                    <label class="text-xs text-gray-500 dark:text-gray-400">Actualizar avatar</label>
+                    <input name="file" type="file" accept="image/*" class="mt-1 w-full text-sm" />
+                    <button type="submit" class="mt-2 w-full rounded-md bg-primary text-white py-1 text-sm">Subir</button>
+                </form>
+            </div>
+        </details>
+        {% else %}
+        <a href="/login" class="text-sm font-medium text-primary">Iniciar sesión</a>
+        {% endif %}
+    </div>
+</header>
+<main class="flex-1 space-y-4 p-4 pb-24">
+{% if products %}
+    {% for p in products %}
+    <div class="flex items-center gap-4 rounded-xl bg-white p-3 shadow-sm dark:bg-slate-800">
+        <img class="h-14 w-14 rounded-lg object-cover" data-alt="{{ p.name }}" src="{{ p.image or '/static/images/product1.svg' }}"/>
+        <div class="flex-1">
+            <p class="font-semibold text-gray-900 dark:text-gray-100">{{ p.name }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ p.price }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            {# Mostrar botones solo si el usuario logueado es admin #}
+            {% if current_user and current_user.role == 'admin' %}
+                <a href="/product/edit/{{ p.id }}" class="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30" aria-label="Editar producto {{ p.name }}">
+                    <span class="material-symbols-outlined text-lg">edit</span>
+                </a>
+                <form action="/product/delete/{{ p.id }}" method="post" onsubmit="return confirm('Eliminar producto?');">
+                    <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 text-red-600 transition-colors hover:bg-red-200 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60" aria-label="Eliminar producto {{ p.name }}">
+                        <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                </form>
+            {% else %}
+                {# No mostrar controles de administración a usuarios no-admin. Aquí se podría colocar un botón de "ver" o "añadir al carrito" si fuera necesario. #}
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-700 dark:bg-slate-800">
+        <span class="material-symbols-outlined mb-4 text-5xl text-gray-400 dark:text-gray-500">inventory_2</span>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Aún no tienes productos</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Haz clic en el botón de abajo para añadir tu primer producto.</p>
+    </div>
+{% endif %}
+<!-- Empty State Example (commented out for display) -->
+<!-- 
+            <div class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-700 dark:bg-slate-800">
+                <span class="material-symbols-outlined mb-4 text-5xl text-gray-400 dark:text-gray-500">inventory_2</span>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Aún no tienes productos</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Haz clic en el botón de abajo para añadir tu primer producto.</p>
+            </div> 
+            -->
+</main>
+{# Botón flotante 'add' visible solo para administradores. Conecta con la página de creación/edición de producto. #}
+{% if current_user and current_user.role == 'admin' %}
+<div class="fixed bottom-6 right-6 z-20">
+    <a href="/product/new" title="Añadir producto" class="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-105 active:scale-95" aria-label="Añadir producto">
+        <span class="material-symbols-outlined text-3xl">add</span>
+    </a>
+</div>
+{% endif %}
+</div>
+<script>
+// Toggle details open/close when avatar is clicked (catalog page)
+document.addEventListener('DOMContentLoaded', function(){
+    const avatar = document.getElementById('user-avatar-catalog');
+    const details = document.getElementById('user-controls-details');
+    if (avatar && details) {
+        avatar.style.cursor = 'pointer';
+        avatar.addEventListener('click', function(e){ e.stopPropagation(); details.open = !details.open; });
+    }
+    // close details if click outside
+    document.addEventListener('click', function(){ if (details && details.open) details.open = false; });
+});
+</script>
+{% include 'partials/bottom_nav.html' %}
+</body></html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Carrito de Compras</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-10 flex h-16 items-center border-b border-zinc-200/80 dark:border-zinc-800/80 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm px-4">
+<a href="/" class="flex size-10 shrink-0 items-center justify-center rounded-full text-zinc-700 dark:text-zinc-300">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</a>
+<h1 class="flex-1 text-center text-lg font-bold leading-tight tracking-[-0.015em] text-zinc-900 dark:text-zinc-100 pr-10">Carrito de Compras</h1>
+</header>
+<main class="flex-grow pb-48">
+<!-- Product List -->
+<div class="flex flex-col gap-4 p-4">
+<!-- List Item 1 -->
+<div class="flex items-start gap-4 rounded-xl bg-white dark:bg-zinc-900 p-4 shadow-sm">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-20" data-alt="Camiseta Clásica de color blanco" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCxKPxRFuCycxObBaJEsFBCrbSd7u5Q7GT57okrsGQGLSzwuGYYP68-UU-iY0TocPTdAa_sN9KKX-q1NlSUDHK-QPuorli01_goRrzs0DMR39cirtbeJBm1zDMsW01h36J-JLpstaUMdxnlsBBBDtkgR0i4pPWptttZTf_47yeWO8n-Rf3gmozWopXl3XmtezdnvLcSA--JHabY1JslYo91qIOCwJRJO-upqaDjKXEpxt9RdH48FaH8Itfh2fDUIXqkp_qOmJPUCMvx");'></div>
+<div class="flex flex-1 flex-col justify-center gap-1.5">
+<p class="text-base font-medium leading-normal text-zinc-900 dark:text-zinc-100">Camiseta Clásica</p>
+<p class="text-sm font-normal leading-normal text-zinc-500 dark:text-zinc-400">Talla: M, Color: Blanco</p>
+<p class="text-base font-semibold leading-normal text-zinc-900 dark:text-zinc-100">$25.00</p>
+</div>
+<div class="flex flex-col items-end justify-between h-full gap-2">
+<button class="flex items-center justify-center size-8 rounded-full text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+<div class="flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+<button class="text-base font-medium leading-normal flex size-7 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 cursor-pointer">-</button>
+<span class="text-base font-medium leading-normal w-4 text-center">1</span>
+<button class="text-base font-medium leading-normal flex size-7 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 cursor-pointer">+</button>
+</div>
+</div>
+</div>
+<!-- List Item 2 -->
+<div class="flex items-start gap-4 rounded-xl bg-white dark:bg-zinc-900 p-4 shadow-sm">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-20" data-alt="Vaqueros Slim Fit de color azul oscuro" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB5NOwQWjL02CUiZfBmG2Oi0YDjjFbIj_UcbIy6lFZC7txTUJJGlf9zXeDM-th7qxO9ueOzcokTPcFCjx9atOwq6xNBSar6Sg_gOYheOsLw8aCso0kCTIzC6gnhodi-k_uP5NI6qNq6Vf62RMJxLv2k3D5L0yYHKCiYTJuihUj9nGyu_FTvpA0lhGZVpFeqBEuyMnI67wC_AQQmOLhOVO2cTjGeEQthbsCk0QlyYC_UM6eXR0WSrR6uPV7VMy4-eRR0mlSgsi1tsSrX");'></div>
+<div class="flex flex-1 flex-col justify-center gap-1.5">
+<p class="text-base font-medium leading-normal text-zinc-900 dark:text-zinc-100">Vaqueros Slim Fit</p>
+<p class="text-sm font-normal leading-normal text-zinc-500 dark:text-zinc-400">Talla: 32/32, Color: Azul Oscuro</p>
+<p class="text-base font-semibold leading-normal text-zinc-900 dark:text-zinc-100">$75.00</p>
+</div>
+<div class="flex flex-col items-end justify-between h-full gap-2">
+<button class="flex items-center justify-center size-8 rounded-full text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+<div class="flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+<button class="text-base font-medium leading-normal flex size-7 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 cursor-pointer">-</button>
+<span class="text-base font-medium leading-normal w-4 text-center">1</span>
+<button class="text-base font-medium leading-normal flex size-7 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 cursor-pointer">+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Promo Code Section -->
+<div class="px-4 py-3">
+<div class="flex items-end gap-2">
+<label class="flex flex-col min-w-40 flex-1">
+<p class="text-sm font-medium leading-normal pb-2 text-zinc-700 dark:text-zinc-300">Código de Promoción</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl border border-zinc-300 bg-white focus:border-primary h-14 placeholder:text-zinc-400 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500 p-4 text-base font-normal leading-normal shadow-sm focus:ring-2 focus:ring-primary/20" placeholder="Introduce tu código" value=""/>
+</label>
+<button class="flex h-14 w-24 items-center justify-center rounded-xl bg-zinc-200 dark:bg-zinc-800 text-base font-semibold text-zinc-900 dark:text-zinc-100 shadow-sm hover:bg-zinc-300 dark:hover:bg-zinc-700">Aplicar</button>
+</div>
+</div>
+<!-- Summary Section -->
+<div class="px-4 py-2">
+<h3 class="text-lg font-bold leading-tight tracking-[-0.015em] text-zinc-900 dark:text-zinc-100 pt-4 pb-3">Resumen del pedido</h3>
+<div class="flex flex-col gap-3 rounded-xl bg-white dark:bg-zinc-900 p-4 shadow-sm">
+<div class="flex justify-between items-center text-base">
+<p class="text-zinc-600 dark:text-zinc-400">Subtotal</p>
+<p class="font-medium text-zinc-900 dark:text-zinc-100">$100.00</p>
+</div>
+<div class="flex justify-between items-center text-base">
+<p class="text-zinc-600 dark:text-zinc-400">Envío</p>
+<p class="font-medium text-zinc-900 dark:text-zinc-100">$5.00</p>
+</div>
+<div class="my-2 border-t border-dashed border-zinc-200 dark:border-zinc-700"></div>
+<div class="flex justify-between items-center text-lg">
+<p class="font-bold text-zinc-900 dark:text-zinc-100">Total</p>
+<p class="font-bold text-zinc-900 dark:text-zinc-100">$105.00</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Fixed Action Bar -->
+<footer class="fixed bottom-16 left-0 right-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-800 mb-[env(safe-area-inset-bottom)]">
+<div class="container mx-auto max-w-lg p-4">
+<button class="w-full h-14 px-6 flex items-center justify-center rounded-xl bg-primary text-white text-base font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/30">
+                    Proceder al Pago
+                </button>
+</div>
+</footer>
+
+{% include 'partials/bottom_nav.html' %}
+
+<!-- ...existing scripts... -->
+</body>
+</html>

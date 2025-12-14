@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+		<title>Editar Producto</title>
+    
+		<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    
+		<script>
+			tailwind.config = {
+				darkMode: "class",
+				theme: {
+					extend: {
+						colors: {
+							"primary": "#135bec",
+							"background-light": "#f6f6f8",
+							"background-dark": "#101622"
+						},
+						fontFamily: {
+							"display": ["Inter"]
+						}
+					}
+				}
+			}
+		</script>
+		<style>
+			body { font-family: 'Inter', sans-serif; min-height: 100vh; }
+			/* Utility for one-time animation */
+			.animate-pulse-once { animation: pulse 0.5s ease-in-out 1; }
+			@keyframes pulse {
+				0%, 100% { opacity: 1; }
+				50% { opacity: 0.5; }
+			}
+		</style>
+	</head>
+
+	<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+		<div class="relative flex min-h-screen w-full flex-col">
+      
+			<div class="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark px-4">
+				<div class="flex size-10 items-center justify-center">
+					<a href="/manage/catalog" class="inline-flex items-center justify-center">
+						<span class="material-symbols-outlined text-gray-800 dark:text-gray-200">arrow_back</span>
+					</a>
+				</div>
+				<h1 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+					{{ 'Editar Producto' if product and product.id else 'Nuevo Producto' }}
+				</h1>
+				<div class="flex size-10 items-center justify-center"></div>
+			</div>
+
+			<main class="flex-1 overflow-y-auto pb-32">
+				<div class="p-4 space-y-6">
+					<form id="productForm" class="space-y-6" enctype="multipart/form-data">
+						<input type="hidden" name="product_id" id="product_id" value="{{ product.id if product else '' }}" />
+
+						<div class="flex flex-col items-center gap-6 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 px-6 py-10 text-center bg-white dark:bg-gray-800">
+							<div class="flex size-12 items-center justify-center rounded-full bg-primary/10">
+								<span class="material-symbols-outlined text-primary text-3xl">add_photo_alternate</span>
+							</div>
+							<div class="flex max-w-[480px] flex-col items-center gap-2">
+								<p class="text-gray-900 dark:text-gray-100 text-lg font-bold leading-tight">Galería del Producto</p>
+								<p class="text-gray-600 dark:text-gray-400 text-sm font-normal">Sube una o varias imágenes. La primera será la portada.</p>
+							</div>
+
+							<input type="file" name="image_files" id="image_files" accept="image/*" multiple class="mt-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+
+							<div id="imagePreviewContainer" class="mt-4 grid grid-cols-3 gap-2 w-full max-w-md">
+								{% if product and product.images %}
+									{% for img in product.images %}
+									<div class="relative group aspect-square existing-image-wrapper">
+										<img src="{{ img }}" class="h-full w-full object-cover rounded-lg border border-gray-200 dark:border-gray-700" alt="Product Image">
+										<input type="hidden" name="kept_images" value="{{ img }}">
+										<button type="button" onclick="removeExistingImage(this)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors">
+											<span class="material-symbols-outlined text-[14px] font-bold block">close</span>
+										</button>
+										{% if loop.first %}
+											<span class="absolute bottom-1 left-1 bg-black/50 text-white text-[10px] px-1 rounded backdrop-blur-sm">Portada</span>
+										{% endif %}
+									</div>
+									{% endfor %}
+								{% elif product and product.image %}
+									<div class="relative group aspect-square existing-image-wrapper">
+										<img src="{{ product.image }}" class="h-full w-full object-cover rounded-lg border border-gray-200 dark:border-gray-700" alt="Current Cover">
+										<input type="hidden" name="kept_images" value="{{ product.image }}">
+										<span class="absolute bottom-1 left-1 bg-black/50 text-white text-[10px] px-1 rounded">Actual</span>
+									</div>
+								{% endif %}
+							</div>
+						</div>
+
+						<div class="space-y-4">
+							<label class="flex flex-col w-full">
+								<span class="text-base font-medium pb-2 text-gray-900 dark:text-gray-100">Título del Producto</span>
+								<input name="title" required class="form-input w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/50 h-14 px-4" placeholder="Ej: Zapatillas Nike Air" value="{{ product.name if product else '' }}"/>
+							</label>
+
+							<label class="flex flex-col w-full">
+								<span class="text-base font-medium pb-2 text-gray-900 dark:text-gray-100">Descripción</span>
+								<textarea name="description" class="form-textarea w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/50 min-h-[144px] p-4" placeholder="Detalles técnicos, materiales, etc.">{{ product.description if product else '' }}</textarea>
+							</label>
+
+							<label class="flex flex-col w-full">
+								<span class="text-base font-medium pb-2 text-gray-900 dark:text-gray-100">Precio</span>
+								<div class="relative">
+									<span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 dark:text-gray-400">$</span>
+									  <input name="price" type="number" step="0.01" class="form-input w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/50 h-14 pl-8 pr-4" placeholder="0.00" value="{{ (product.price | string | replace('$','') | replace(',','')) if product and product.price is not none else '' }}"/>
+								</div>
+							</label>
+
+							<label class="flex flex-col w-full">
+								<span class="text-base font-medium pb-2 text-gray-900 dark:text-gray-100">
+									Etiquetas (Tags)
+								</span>
+								<div class="relative">
+									<span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 dark:text-gray-400">
+										<span class="material-symbols-outlined text-lg">label</span>
+									</span>
+									<input 
+										name="tags" 
+										type="text" 
+										class="form-input w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary/50 h-14 pl-12 pr-4" 
+										placeholder="Ej: Electrónica, Ofertas, Verano (separar por comas)" 
+										value="{{ product.tags | join(', ') if product and product.tags else '' }}"
+									/>
+								</div>
+								<p class="text-xs text-gray-500 mt-1 pl-1">Separa las etiquetas con comas. Se guardarán como una lista.</p>
+							</label>
+						</div>
+					</form>
+				</div>
+			</main>
+
+			<div class="fixed bottom-16 left-0 right-0 z-10 border-t border-gray-200 dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm p-4 mb-[env(safe-area-inset-bottom)]">
+				<div class="flex items-center gap-4 max-w-lg mx-auto">
+					<a href="/manage/catalog" class="flex w-1/3 cursor-pointer items-center justify-center rounded-xl h-12 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+						Cancelar
+					</a>
+					<button type="button" id="submitBtn" class="flex flex-1 cursor-pointer items-center justify-center rounded-xl h-12 px-4 bg-primary text-white font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+						<span id="btnText">Guardar Producto</span>
+						<span id="btnLoader" class="hidden material-symbols-outlined animate-spin ml-2 text-sm">progress_activity</span>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		{% include 'partials/bottom_nav.html' %}
+
+		<script>
+			/**
+			 * Handles removal of existing server-rendered images.
+			 * @param {HTMLElement} btn - The button element triggered.
+			 */
+			function removeExistingImage(btn) {
+				const wrapper = btn.closest('.existing-image-wrapper');
+				if (wrapper) wrapper.remove();
+			}
+
+			document.addEventListener('DOMContentLoaded', () => {
+				// DOM Elements
+				const fileInput = document.getElementById('image_files');
+				const previewContainer = document.getElementById('imagePreviewContainer');
+				const form = document.getElementById('productForm');
+				const submitBtn = document.getElementById('submitBtn');
+				const btnText = document.getElementById('btnText');
+				const btnLoader = document.getElementById('btnLoader');
+				const productIdField = document.getElementById('product_id');
+
+				/**
+				 * Logic: Image Preview
+				 * Renders selected files immediately in the grid.
+				 */
+				if (fileInput) {
+					fileInput.addEventListener('change', (e) => {
+						const files = Array.from(e.target.files);
+            
+						files.forEach(file => {
+							if (!file.type.startsWith('image/')) return;
+
+							const reader = new FileReader();
+							reader.onload = (event) => {
+								const div = document.createElement('div');
+								div.className = 'relative aspect-square animate-pulse-once';
+								div.innerHTML = `
+									<img src="${event.target.result}" class="h-full w-full object-cover rounded-lg border border-gray-200 dark:border-gray-700" alt="New Upload Preview" />
+									<span class="absolute top-1 right-1 bg-primary text-white rounded-full p-0.5">
+										<span class="material-symbols-outlined text-[14px]">check</span>
+									</span>`;
+								previewContainer.appendChild(div);
+                
+								// Cleanup animation class
+								setTimeout(() => div.classList.remove('animate-pulse-once'), 500);
+							};
+							reader.readAsDataURL(file);
+						});
+					});
+				}
+
+				/**
+				 * Logic: Form Submission
+				 * Handles PUT (Update) vs POST (Create) via Fetch API.
+				 */
+				if (submitBtn) {
+					submitBtn.addEventListener('click', async () => {
+						// 1. Lock UI
+						submitBtn.disabled = true;
+						btnText.textContent = 'Guardando...';
+						btnLoader.classList.remove('hidden');
+
+						try {
+							const formData = new FormData(form);
+							const productId = productIdField.value;
+							const method = productId ? 'PUT' : 'POST';
+							const url = productId ? `/product/${productId}` : '/product';
+
+							const response = await fetch(url, { method, body: formData });
+
+							if (response.ok) {
+								// Success State
+								btnText.textContent = '¡Guardado!';
+								submitBtn.classList.replace('bg-primary', 'bg-green-600');
+                
+								// Redirect after brief delay for UX
+								setTimeout(() => window.location.href = '/manage/catalog', 800);
+							} else {
+								const err = await response.json().catch(() => ({ detail: 'Error desconocido' }));
+								throw new Error(err.detail || 'Error al guardar el producto');
+							}
+						} catch (err) {
+							console.error('Submission error:', err);
+							alert('Error: ' + err.message);
+              
+							// Reset UI on Failure
+							submitBtn.disabled = false;
+							btnText.textContent = 'Guardar Producto';
+							submitBtn.classList.replace('bg-green-600', 'bg-primary'); // Revert color if retrying
+							btnLoader.classList.add('hidden');
+						}
+					});
+				}
+			});
+		</script>
+	</body>
+</html>
+

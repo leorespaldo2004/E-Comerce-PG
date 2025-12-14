@@ -1,0 +1,21 @@
+# Requerimientos para el proyecto E-Comerce PG
+# Las versiones son recomendaciones mínimas; ajústalas según tu entorno si lo deseas.
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+jinja2>=3.0.0
+python-dotenv>=1.0.0
+pymongo>=4.5.0
+dnspython>=2.2.0  # Opcional: necesario si usas mongodb+srv URIs
+pandas>=2.0.0
+numpy>=1.25.0
+httpx>=0.24.0
+requests>=2.28.0
+certifi>=2024.0.0
+SQLAlchemy>=2.0.0
+aiofiles>=23.1.0
+python-multipart>=0.0.6
+pydantic>=1.10.0
+typing-extensions>=4.0.0
+
+# Nota: varios paquetes como `pydantic`, `starlette` y dependencias de pandas
+# se instalarán automáticamente como dependencias de los paquetes listados.
