@@ -197,12 +197,16 @@ def ensure_users_indexes():
 
 
 async def get_or_create_user_from_info(user_info: dict):
-    """Create or update a user document in `usuarios` collection from Google userinfo.
-
-    Expects user_info to include at least 'sub' (google id) and 'email'.
-    Returns the full user document as a dict.
     """
-    # Run blocking DB operations in a thread to avoid blocking async loop
+    Retrieves an existing user or creates a new one based on Google OAuth info.
+    
+    Architecture Note:
+    - Implements strict separation between 'Identity Data' (from Google) and 'Domain Data' (Role).
+    - BUG FIX: The 'role' field is only assigned upon creation. It is explicitly excluded 
+      from updates to prevent overwriting 'admin' status with the default 'user' role on login.
+    """
+    
+    # Run blocking DB operations in a thread to avoid blocking the async event loop
     def _sync_op(user_info_local):
         client = get_client()
         try:
@@ -212,11 +216,13 @@ async def get_or_create_user_from_info(user_info: dict):
 
             google_id = user_info_local.get('sub') or user_info_local.get('id')
             if not google_id:
-                raise ValueError('google_id (sub) is required')
+                raise ValueError('google_id (sub) is required from Identity Provider')
 
-            # Build document according to spec
             now = _now()
-            doc = {
+
+            # 1. Prepare Identity Data (Mutable fields from Google)
+            # These fields are allowed to update on every login to keep profile fresh.
+            identity_data = {
                 'google_id': str(google_id),
                 'email': user_info_local.get('email'),
                 'email_verified': bool(user_info_local.get('email_verified')),
@@ -225,34 +231,47 @@ async def get_or_create_user_from_info(user_info: dict):
                 'family_name': user_info_local.get('family_name'),
                 'picture': user_info_local.get('picture'),
                 'locale': user_info_local.get('locale'),
-                # Role: 'user' by default; admins can be assigned later manually
-                'role': user_info_local.get('role') or 'user',
+                # NOTE: 'role' is INTENTIONALLY OMITTED here to protect it during updates.
             }
 
-            # Try to find existing user by google_id
-            existing = coll.find_one({'google_id': str(google_id)})
-            if existing:
-                # update timestamps and fields
-                updates = {k: v for k, v in doc.items() if v is not None}
-                # preserve existing role if present and no role provided
-                if existing.get('role') and 'role' not in updates:
-                    updates['role'] = existing.get('role')
-                updates['updated_at'] = now
-                updates['last_login_at'] = now
-                coll.update_one({'_id': existing['_id']}, {'$set': updates})
-                existing.update(updates)
-                # normalize and return safe dict
-                return _doc_to_dict(existing)
+            # Remove None values to avoid overwriting existing data with nulls unnecessarily
+            identity_data = {k: v for k, v in identity_data.items() if v is not None}
 
-            # create new
-            doc['created_at'] = now
-            doc['updated_at'] = now
-            doc['last_login_at'] = now
-            # insert
-            res = coll.insert_one(doc)
-            doc['_id'] = res.inserted_id
-            doc['id'] = str(res.inserted_id)
-            return _doc_to_dict(doc)
+            # 2. Check for Existing User
+            existing_user = coll.find_one({'google_id': str(google_id)})
+
+            if existing_user:
+                # --- UPDATE STRATEGY ---
+                # Only update identity fields and login timestamps.
+                # The 'role' field remains untouched in the DB.
+                
+                identity_data['updated_at'] = now
+                identity_data['last_login_at'] = now
+                
+                coll.update_one({'_id': existing_user['_id']}, {'$set': identity_data})
+                
+                # Merge updates into the existing document for return
+                existing_user.update(identity_data)
+                return _doc_to_dict(existing_user)
+
+            else:
+                # --- CREATE STRATEGY ---
+                # New user provisioning. Here we MUST assign the default domain role.
+                
+                new_user_doc = identity_data.copy()
+                # Default role assignment (Business Logic)
+                new_user_doc['role'] = user_info_local.get('role') or 'user' 
+                
+                new_user_doc['created_at'] = now
+                new_user_doc['updated_at'] = now
+                new_user_doc['last_login_at'] = now
+
+                res = coll.insert_one(new_user_doc)
+                
+                # Normalize ID for return
+                new_user_doc['_id'] = res.inserted_id
+                return _doc_to_dict(new_user_doc)
+
         finally:
             client.close()
 
