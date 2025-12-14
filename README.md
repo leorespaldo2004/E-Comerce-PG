@@ -15,3 +15,13 @@ python -m venv .venv
 ; python main.py
 # o
 ; uvicorn main:app --reload --host localhost --port 8000
+
+## Manual verification: User dropdown
+
+1. Start the app locally and open `http://localhost:8000`.
+2. Log in with a test user (or simulate `request.state.user` in middleware) so `current_user` is present.
+3. Click the settings (gear) button in the top-right. The dropdown should appear with `Mi Perfil` and `Cerrar Sesión`.
+4. If the logged-in user has role `admin`, the `Gestión del Catálogo` entry should be visible.
+5. Click outside the dropdown or press `Escape` — the menu should close.
+
+If any behavior differs, inspect the browser console for JS errors and verify the template at `templates/index.html`.

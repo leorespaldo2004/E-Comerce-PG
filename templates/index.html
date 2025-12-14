@@ -24,9 +24,19 @@
     }
   </script>
   <style>
-    /* Asegura que los iconos se comporten correctamente */
+    /* Ensure icons render correctly with variable fonts */
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Smooth transition for dropdown visibility */
+    .dropdown-enter {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    .dropdown-enter-active {
+        transform: scale(1);
+        opacity: 1;
+        transition: transform 0.1s ease-out, opacity 0.1s ease-out;
     }
   </style>
 </head>
@@ -41,24 +51,71 @@
             </a>
             
             <div class="flex items-center gap-4">
-                {% if current_user %}
-                    {% if current_user.role == 'admin' %}
-                        <a href="/manage/catalog" class="hidden sm:flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-primary transition">
-                            <span class="material-symbols-outlined text-lg">settings</span>
-                            Gestión
-                        </a>
-                    {% endif %}
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm font-medium text-slate-600 hidden sm:block">Hola, {{ current_user.name.split()[0] }}</span>
-                        <img src="{{ current_user.picture or 'https://ui-avatars.com/api/?name=' + current_user.name }}" class="h-9 w-9 rounded-full bg-slate-200 object-cover ring-2 ring-white shadow-sm">
-                    </div>
-                {% else %}
-                    <a href="/login" class="text-sm font-semibold text-primary hover:text-blue-700">Ingresar</a>
-                {% endif %}
-                <button class="relative rounded-full bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200">
+                
+                <button class="relative rounded-full bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200 order-1">
                     <span class="material-symbols-outlined block">shopping_bag</span>
                     <span id="cart-count" class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm hidden">0</span>
                 </button>
+
+                {% if current_user %}
+                    <div class="flex items-center gap-3 order-2 pl-2 border-l border-slate-200 ml-2 relative">
+                        <div class="hidden md:flex flex-col items-end mr-1">
+                            <span class="text-sm font-semibold text-slate-700 leading-tight">{{ current_user.name.split()[0] }}</span>
+                            <span class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{{ current_user.role }}</span>
+                        </div>
+                        
+                        <img src="{{ current_user.picture or 'https://ui-avatars.com/api/?name=' + current_user.name }}" 
+                             class="h-9 w-9 rounded-full bg-slate-200 object-cover ring-2 ring-white shadow-sm"
+                             alt="Profile">
+
+                        <div class="relative">
+                            <button id="user-menu-btn" 
+                                    class="flex items-center justify-center h-9 w-9 rounded-full bg-slate-100 text-slate-600 hover:bg-primary hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                <span class="material-symbols-outlined text-xl">settings</span>
+                            </button>
+
+                            <div id="user-dropdown" 
+                                 class="hidden absolute right-0 mt-2 w-56 origin-top-right divide-y divide-slate-100 rounded-lg bg-white shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50 transform dropdown-enter">
+                                
+                                <div class="px-4 py-3 md:hidden">
+                                    <p class="truncate text-sm font-medium text-slate-900">{{ current_user.name }}</p>
+                                    <p class="truncate text-xs text-slate-500">{{ current_user.email }}</p>
+                                </div>
+
+                                <div class="py-1">
+                                    <a href="/profile" class="group flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary">
+                                        <span class="material-symbols-outlined mr-3 text-lg text-slate-400 group-hover:text-primary">person</span>
+                                        Mi Perfil
+                                    </a>
+                                </div>
+
+                                {% if current_user.role == 'admin' %}
+                                <div class="py-1">
+                                    <a href="/manage/catalog" class="group flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary">
+                                        <span class="material-symbols-outlined mr-3 text-lg text-slate-400 group-hover:text-primary">inventory_2</span>
+                                        Gestión del Catálogo
+                                    </a>
+                                </div>
+                                {% endif %}
+
+                                <div class="py-1">
+                                    <a href="/logout" class="group flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                        <span class="material-symbols-outlined mr-3 text-lg text-red-400 group-hover:text-red-600">logout</span>
+                                        Cerrar Sesión
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="order-2 ml-2 pl-2 border-l border-slate-200">
+                        <a href="/login" class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                            Ingresar
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -191,5 +248,54 @@
 {% include 'partials/bottom_nav.html' %}
 
 <script src="/static/js/index.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const menuBtn = document.getElementById('user-menu-btn');
+        const menuDropdown = document.getElementById('user-dropdown');
+        
+        if (menuBtn && menuDropdown) {
+            // Toggle dropdown
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = menuDropdown.classList.contains('hidden');
+                
+                if (isHidden) {
+                    menuDropdown.classList.remove('hidden');
+                    // Small delay to allow transition if we were using it for opacity
+                    requestAnimationFrame(() => {
+                        menuDropdown.classList.add('dropdown-enter-active');
+                    });
+                } else {
+                    menuDropdown.classList.add('hidden');
+                    menuDropdown.classList.remove('dropdown-enter-active');
+                }
+                
+                // Toggle ARIA
+                menuBtn.setAttribute('aria-expanded', !isHidden);
+            });
+
+            // Close on click outside
+            document.addEventListener('click', (e) => {
+                if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+                    if (!menuDropdown.classList.contains('hidden')) {
+                        menuDropdown.classList.add('hidden');
+                        menuDropdown.classList.remove('dropdown-enter-active');
+                        menuBtn.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            });
+
+            // Close on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !menuDropdown.classList.contains('hidden')) {
+                    menuDropdown.classList.add('hidden');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                    menuBtn.focus();
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
