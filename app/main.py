@@ -475,6 +475,72 @@ async def product_detail(request: Request, product_id: str):
     
     return render_template(request, "product_details.html", {"product": normalized_prod})
 
+
+@app.get("/favorites")
+async def view_favorites(request: Request, page: int = 1):
+    """
+    Renders the Index page but filtered to show only the user's favorites.
+    """
+    user = getattr(request.state, "user", None)
+    if not user:
+        return RedirectResponse(url="/login")
+    
+    # 1. Get Favorite IDs safely
+    fav_ids = user.get('favorites', [])
+    
+    # 2. Fetch Products
+    PAGE_SIZE = 12
+    raw_products = []
+    total_products = len(fav_ids)
+    
+    if total_products > 0:
+        raw_products = await asyncio.to_thread(mongo.get_products_by_ids, fav_ids, page, PAGE_SIZE)
+    
+    total_pages = math.ceil(total_products / PAGE_SIZE) if total_products > 0 else 1
+    
+    # 3. View Model Mapping (Reusing logic from index for DRY)
+    products_view_model = []
+    for p in raw_products:
+        img_source = p.get('image')
+        if not img_source and p.get('images') and isinstance(p['images'], list) and len(p['images']) > 0:
+            img_source = p['images'][0]
+        elif not img_source and isinstance(p.get('imagenes'), dict):
+            img_source = p['imagenes'].get('cover')
+            
+        image_url = img_source if img_source else "/static/images/placeholder.svg"
+        if image_url and not image_url.startswith(('http', '/')):
+             image_url = f"/static/uploads/{image_url}"
+
+        # Normalize tags
+        tags_raw = p.get('tags') or []
+        if not isinstance(tags_raw, list): tags_raw = []
+
+        products_view_model.append({
+            "id": str(p.get('_id') or p.get('id')),
+            "name": p.get('name') or "Producto",
+            "price_fmt": f"${p.get('price', 0):,.0f}".replace(",", "."),
+            "image": image_url,
+            "is_new": p.get('is_new', False),
+            "tags": tags_raw
+        })
+
+    pagination_ctx = {
+        "current_page": page,
+        "total_pages": total_pages,
+        "has_next": page < total_pages,
+        "has_prev": page > 1,
+        "next_page": page + 1,
+        "prev_page": page - 1,
+        "q": ""
+    }
+
+    return render_template(request, "index.html", {
+        "products": products_view_model,
+        "page_title": "Mis Favoritos",
+        "pagination": pagination_ctx,
+        "q": ""
+    })
+
 # --- Main Entry Point ---
 
 if __name__ == "__main__":

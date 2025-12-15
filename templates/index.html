@@ -149,6 +149,17 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
                     </a>
 
+                    {% if current_user %}
+                    <button onclick="toggleFavorite(event, '{{ p.id }}', this)" 
+                            class="absolute top-2 left-2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-all hover:scale-110 active:scale-90 group/fav"
+                            title="Añadir a favoritos">
+                        <span class="material-symbols-outlined text-xl transition-colors duration-200 
+                            {% if p.id in (current_user.favorites or []) %} text-red-500 font-fill {% else %} text-slate-400 group-hover/fav:text-red-500 {% endif %}">
+                            favorite
+                        </span>
+                    </button>
+                    {% endif %}
+
                     {% if current_user and current_user.role == 'admin' %}
                     <a href="/product/edit/{{ p.id }}" 
                        class="absolute top-2 right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-sm backdrop-blur-sm transition hover:bg-primary hover:text-white"
@@ -296,6 +307,65 @@
             });
         }
     });
+</script>
+
+<script>
+    async function toggleFavorite(e, productId, btn) {
+        e.preventDefault(); // Prevent navigating to product detail
+        e.stopPropagation();
+
+        const icon = btn.querySelector('span');
+        
+        // Optimistic UI Update (Immediate feedback)
+        const isCurrentlyFav = icon.classList.contains('text-red-500');
+        
+        if (isCurrentlyFav) {
+            icon.classList.remove('text-red-500', 'font-fill');
+            icon.classList.add('text-slate-400');
+        } else {
+            icon.classList.add('text-red-500', 'font-fill');
+            icon.classList.remove('text-slate-400');
+        }
+
+        try {
+            const response = await fetch(`/api/v1/users/favorites/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) throw new Error('Failed to toggle');
+            
+            const data = await response.json();
+            
+            // Re-sync with server state if needed
+            if (data.is_favorite) {
+                icon.classList.add('text-red-500', 'font-fill');
+                icon.classList.remove('text-slate-400');
+            } else {
+                icon.classList.remove('text-red-500', 'font-fill');
+                icon.classList.add('text-slate-400');
+            }
+            
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            // Revert UI on error
+            if (isCurrentlyFav) {
+                icon.classList.add('text-red-500', 'font-fill');
+                icon.classList.remove('text-slate-400');
+            } else {
+                icon.classList.remove('text-red-500', 'font-fill');
+                icon.classList.add('text-slate-400');
+            }
+            alert('No se pudo actualizar favoritos. Intenta de nuevo.');
+        }
+    }
+    
+    // Helper helper class for filled icon
+    const style = document.createElement('style');
+    style.innerHTML = `.font-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }`;
+    document.head.appendChild(style);
 </script>
 </body>
 </html>

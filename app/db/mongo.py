@@ -615,3 +615,79 @@ def load_data_etl():
 
 if __name__ == "__main__":
     load_data_etl()
+
+
+# --- Lógica de Favoritos (NUEVO) ---
+def toggle_user_favorite(user_id: str, product_id: str) -> bool:
+    """
+    Toggles a product ID in the user's favorites list.
+    Returns:
+        bool: True if added (is now favorite), False if removed or on failure.
+    """
+    client = get_client()
+    try:
+        db = client[DB_NAME]
+        users = db['usuarios']
+
+        # Try ObjectId lookup first
+        try:
+            uid = ObjectId(user_id)
+            # Check if product is already in favorites
+            user = users.find_one({"_id": uid, "favorites": product_id})
+            if user:
+                users.update_one({"_id": uid}, {"$pull": {"favorites": product_id}})
+                return False
+            else:
+                users.update_one({"_id": uid}, {"$addToSet": {"favorites": product_id}})
+                return True
+        except Exception:
+            # Fallback to legacy string 'id' field if present
+            try:
+                user = users.find_one({"id": str(user_id), "favorites": product_id})
+                if user:
+                    users.update_one({"id": str(user_id)}, {"$pull": {"favorites": product_id}})
+                    return False
+                else:
+                    users.update_one({"id": str(user_id)}, {"$addToSet": {"favorites": product_id}})
+                    return True
+            except Exception as e:
+                logger.error(f"Error toggling favorite (fallback): {e}")
+                return False
+    except Exception as e:
+        logger.error(f"Error toggling favorite: {e}")
+        return False
+    finally:
+        client.close()
+
+
+def get_products_by_ids(product_ids: list, page: int = 1, page_size: int = 12) -> list:
+    """
+    Retrieves detailed product documents for a specific list of IDs.
+    Used for the Favorites View.
+    """
+    if not product_ids:
+        return []
+
+    client, coll = get_collection()
+    try:
+        # Build query to match either ObjectId or String ID
+        p_oids = []
+        p_strs = []
+        for pid in product_ids:
+            try:
+                p_oids.append(ObjectId(pid))
+            except Exception:
+                pass
+            p_strs.append(str(pid))
+            
+        filter_q = {"$or": [{"_id": {"$in": p_oids}}, {"id": {"$in": p_strs}}]}
+        
+        cursor = coll.find(filter_q).sort("created_at", -1)
+        
+        # Pagination using MongoDB
+        skip = (page - 1) * page_size
+        cursor = cursor.skip(skip).limit(page_size)
+        
+        return [_doc_to_dict(d) for d in cursor]
+    finally:
+        client.close()

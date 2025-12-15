@@ -105,3 +105,25 @@ async def upload_avatar(request: Request, file: UploadFile = File(...)):
         return RedirectResponse(url=referer)
 
     return {"ok": True, "picture": picture_url}
+
+
+# --- Favorites endpoint ---
+@router.post("/users/favorites/{product_id}")
+async def toggle_favorite(product_id: str, request: Request):
+    """
+    Toggles the favorite status of a product for the current user.
+    """
+    current = getattr(request.state, 'user', None)
+    if not current:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Must be logged in")
+
+    user_id = current.get('id') or current.get('_id')
+    
+    # Execute DB operation in thread
+    def _op():
+        from app.db.mongo import toggle_user_favorite
+        return toggle_user_favorite(user_id, product_id)
+    
+    is_favorite = await asyncio.to_thread(_op)
+    
+    return {"ok": True, "is_favorite": is_favorite}
