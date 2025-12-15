@@ -1,371 +1,323 @@
-<!DOCTYPE html>
-<html class="light" lang="es">
-<head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>{{ page_title }}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+        <!DOCTYPE html>
+        <html class="light" lang="es">
+        <head>
+          <meta charset="utf-8"/>
+          <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+          <title>{{ page_title }}</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+          <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
   
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          fontFamily: { "display": ["'Plus Jakarta Sans'", "sans-serif"] },
-          colors: {
-            "primary": "#2563eb",
-            "surface": "#ffffff",
-            "background": "#f8fafc"
-          }
-        },
-      },
-    }
-  </script>
-  <style>
-    /* Ensure icons render correctly with variable fonts */
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    /* Smooth transition for dropdown visibility */
-    .dropdown-enter {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-    .dropdown-enter-active {
-        transform: scale(1);
-        opacity: 1;
-        transition: transform 0.1s ease-out, opacity 0.1s ease-out;
-    }
-  </style>
-</head>
-<body class="bg-background font-display text-slate-800 antialiased selection:bg-primary/20 flex flex-col min-h-screen">
+          <script>
+            tailwind.config = {
+              darkMode: "class",
+              theme: {
+                extend: {
+                  fontFamily: { "display": ["'Plus Jakarta Sans'", "sans-serif"] },
+                  colors: {
+                    "primary": "#2563eb",
+                    "surface": "#ffffff",
+                    "background": "#f8fafc"
+                  }
+                },
+              },
+            }
+          </script>
+          <style>
+            /* Icon settings & Transitions */
+            .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+            .font-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    
+            /* Dropdown Animation */
+            .dropdown-enter { transform: scale(0.95); opacity: 0; }
+            .dropdown-enter-active { transform: scale(1); opacity: 1; transition: transform 0.1s ease-out, opacity 0.1s ease-out; }
 
-<nav class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-md">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-            <a href="/" class="flex items-center gap-2 hover:opacity-80 transition">
-                <span class="material-symbols-outlined text-primary text-3xl">storefront</span>
-                <span class="text-xl font-bold tracking-tight text-slate-900">Punto G</span>
-            </a>
+            /* Toast Animation */
+            .toast-enter { transform: translateY(1rem); opacity: 0; }
+            .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            .toast-exit { transform: translateY(0); opacity: 1; }
+            .toast-exit-active { transform: translateY(1rem); opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+          </style>
+        </head>
+        <body class="bg-background font-display text-slate-800 antialiased selection:bg-primary/20 flex flex-col min-h-screen">
+
+        <nav class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-md">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-16 items-center justify-between">
+                    <a href="/" class="flex items-center gap-2 hover:opacity-80 transition">
+                        <span class="material-symbols-outlined text-primary text-3xl">storefront</span>
+                        <span class="text-xl font-bold tracking-tight text-slate-900">Punto G</span>
+                    </a>
             
-            <div class="flex items-center gap-4">
-                
-                <button class="relative rounded-full bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200 order-1">
-                    <span class="material-symbols-outlined block">shopping_bag</span>
-                    <span id="cart-count" class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm hidden">0</span>
-                </button>
+                    <div class="flex items-center gap-4">
+                        <button class="relative rounded-full bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200 order-1">
+                            <span class="material-symbols-outlined block">shopping_bag</span>
+                            <span id="cart-count" class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm hidden">0</span>
+                        </button>
 
-                {% if current_user %}
-                    <div class="flex items-center gap-3 order-2 pl-2 border-l border-slate-200 ml-2 relative">
-                        <div class="hidden md:flex flex-col items-end mr-1">
-                            <span class="text-sm font-semibold text-slate-700 leading-tight">{{ current_user.name.split()[0] }}</span>
-                            <span class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{{ current_user.role }}</span>
-                        </div>
+                        {% if current_user %}
+                            <div class="flex items-center gap-3 order-2 pl-2 border-l border-slate-200 ml-2 relative">
+                                <div class="hidden md:flex flex-col items-end mr-1">
+                                    <span class="text-sm font-semibold text-slate-700 leading-tight">{{ current_user.name.split()[0] }}</span>
+                                    <span class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{{ current_user.role }}</span>
+                                </div>
+                                <img src="{{ current_user.picture or 'https://ui-avatars.com/api/?name=' + current_user.name }}" class="h-9 w-9 rounded-full bg-slate-200 object-cover ring-2 ring-white shadow-sm" alt="Profile">
                         
-                        <img src="{{ current_user.picture or 'https://ui-avatars.com/api/?name=' + current_user.name }}" 
-                             class="h-9 w-9 rounded-full bg-slate-200 object-cover ring-2 ring-white shadow-sm"
-                             alt="Profile">
-
-                        <div class="relative">
-                            <button id="user-menu-btn" 
-                                    class="flex items-center justify-center h-9 w-9 rounded-full bg-slate-100 text-slate-600 hover:bg-primary hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-                                    aria-haspopup="true"
-                                    aria-expanded="false">
-                                <span class="material-symbols-outlined text-xl">settings</span>
-                            </button>
-
-                            <div id="user-dropdown" 
-                                 class="hidden absolute right-0 mt-2 w-56 origin-top-right divide-y divide-slate-100 rounded-lg bg-white shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50 transform dropdown-enter">
-                                
-                                <div class="px-4 py-3 md:hidden">
-                                    <p class="truncate text-sm font-medium text-slate-900">{{ current_user.name }}</p>
-                                    <p class="truncate text-xs text-slate-500">{{ current_user.email }}</p>
-                                </div>
-
-                                <div class="py-1">
-                                    <a href="/profile" class="group flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary">
-                                        <span class="material-symbols-outlined mr-3 text-lg text-slate-400 group-hover:text-primary">person</span>
-                                        Mi Perfil
-                                    </a>
-                                </div>
-
-                                {% if current_user.role == 'admin' %}
-                                <div class="py-1">
-                                    <a href="/manage/catalog" class="group flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary">
-                                        <span class="material-symbols-outlined mr-3 text-lg text-slate-400 group-hover:text-primary">inventory_2</span>
-                                        Gestión del Catálogo
-                                    </a>
-                                </div>
-                                {% endif %}
-
-                                <div class="py-1">
-                                    <a href="/logout" class="group flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                        <span class="material-symbols-outlined mr-3 text-lg text-red-400 group-hover:text-red-600">logout</span>
-                                        Cerrar Sesión
-                                    </a>
+                                <div class="relative">
+                                    <button id="user-menu-btn" class="flex items-center justify-center h-9 w-9 rounded-full bg-slate-100 text-slate-600 hover:bg-primary hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                        <span class="material-symbols-outlined text-xl">settings</span>
+                                    </button>
+                                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 origin-top-right divide-y divide-slate-100 rounded-lg bg-white shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50 transform dropdown-enter">
+                                        <div class="px-4 py-3 md:hidden">
+                                            <p class="truncate text-sm font-medium text-slate-900">{{ current_user.name }}</p>
+                                            <p class="truncate text-xs text-slate-500">{{ current_user.email }}</p>
+                                        </div>
+                                        <div class="py-1">
+                                            <a href="/profile" class="group flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary">
+                                                <span class="material-symbols-outlined mr-3 text-lg text-slate-400 group-hover:text-primary">person</span> Mi Perfil
+                                            </a>
+                                        </div>
+                                        {% if current_user.role == 'admin' %}
+                                        <div class="py-1">
+                                            <a href="/manage/catalog" class="group flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary">
+                                                <span class="material-symbols-outlined mr-3 text-lg text-slate-400 group-hover:text-primary">inventory_2</span> Gestión del Catálogo
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                        <div class="py-1">
+                                            <a href="/logout" class="group flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                                <span class="material-symbols-outlined mr-3 text-lg text-red-400 group-hover:text-red-600">logout</span> Cerrar Sesión
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="order-2 ml-2 pl-2 border-l border-slate-200">
-                        <a href="/login" class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-                            Ingresar
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</nav>
-
-<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-grow w-full pb-24">
-    
-    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-bold text-slate-900">Últimos Lanzamientos</h1>
-        <div class="relative w-full sm:w-72">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-            <input type="text" id="search-input" placeholder="Buscar producto, marca o etiqueta..." 
-                   value="{{ q or '' }}"
-                   class="h-10 w-full rounded-full border-0 bg-white pl-10 pr-4 text-sm shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-primary transition-all placeholder:text-slate-400">
-        </div>
-    </div>
-
-    <div id="product-grid" class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-8">
-        {% if products %}
-            {% for p in products %}
-            <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ring-1 ring-slate-200/50 product-card"
-                 data-name="{{ p.name | lower }}">
-                
-                <div class="aspect-[3/4] w-full overflow-hidden bg-slate-100 relative">
-                    <a href="/product/{{ p.id }}" class="block w-full h-full">
-                        <img src="{{ p.image }}" 
-                             loading="lazy"
-                             alt="{{ p.name }}"
-                             class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-                             onerror="this.onerror=null; this.src='https://placehold.co/600x800/f1f5f9/94a3b8?text=Sin+Imagen';">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-                    </a>
-
-                    {% if current_user %}
-                    <button onclick="toggleFavorite(event, '{{ p.id }}', this)" 
-                            class="absolute top-2 left-2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-all hover:scale-110 active:scale-90 group/fav"
-                            title="Añadir a favoritos">
-                        <span class="material-symbols-outlined text-xl transition-colors duration-200 
-                            {% if p.id in (current_user.favorites or []) %} text-red-500 font-fill {% else %} text-slate-400 group-hover/fav:text-red-500 {% endif %}">
-                            favorite
-                        </span>
-                    </button>
-                    {% endif %}
-
-                    {% if current_user and current_user.role == 'admin' %}
-                    <a href="/product/edit/{{ p.id }}" 
-                       class="absolute top-2 right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-sm backdrop-blur-sm transition hover:bg-primary hover:text-white"
-                       title="Editar Producto">
-                        <span class="material-symbols-outlined text-lg">edit</span>
-                    </a>
-                    {% endif %}
-
-                    <button onclick="addToCart('{{ p.id }}')" 
-                            class="absolute bottom-4 right-4 translate-y-12 transform rounded-full bg-white p-3 text-slate-900 shadow-lg transition-all duration-300 hover:bg-primary hover:text-white group-hover:translate-y-0 active:scale-95 z-20"
-                            title="Agregar al carrito">
-                        <span class="material-symbols-outlined block text-xl">add_shopping_cart</span>
-                    </button>
-                </div>
-
-                <div class="flex flex-1 flex-col p-4">
-                    <h3 class="text-sm font-semibold text-slate-900 line-clamp-2 mb-1">
-                        <a href="/product/{{ p.id }}" class="hover:text-primary transition-colors">
-                            {{ p.name }}
-                        </a>
-                    </h3>
-                    <div class="mt-auto flex items-end justify-between">
-                        <p class="text-lg font-bold text-slate-900">{{ p.price_fmt }}</p>
-                        {% if p.is_new %}
-                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Nuevo</span>
+                        {% else %}
+                            <div class="order-2 ml-2 pl-2 border-l border-slate-200">
+                                <a href="/login" class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition">Ingresar</a>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-span-full py-20 text-center">
-                <span class="material-symbols-outlined mx-auto mb-4 block text-6xl text-slate-300">inventory_2</span>
-                <h3 class="text-lg font-medium text-slate-900">No hay productos disponibles</h3>
-                <p class="mt-1 text-slate-500">Intenta añadir productos desde el panel de gestión.</p>
-            </div>
-        {% endif %}
-    </div>
+        </nav>
 
-    {% if pagination and pagination.total_pages > 1 %}
-    <div class="mt-12 flex items-center justify-center border-t border-slate-200 bg-white px-4 py-3 sm:px-6">
-        <div class="flex flex-1 justify-between sm:hidden">
-            {% if pagination.has_prev %}
-            <a href="/?page={{ pagination.prev_page }}{% if pagination.q %}&q={{ pagination.q }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Anterior</a>
-            {% else %}
-            <button disabled class="relative inline-flex items-center rounded-md border border-gray-300 bg-slate-100 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed">Anterior</button>
-            {% endif %}
-
-            {% if pagination.has_next %}
-            <a href="/?page={{ pagination.next_page }}{% if pagination.q %}&q={{ pagination.q }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Siguiente</a>
-            {% else %}
-            <button disabled class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-slate-100 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed">Siguiente</button>
-            {% endif %}
-        </div>
-        
-        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div>
-                <p class="text-sm text-gray-700">
-                    Página <span class="font-bold">{{ pagination.current_page }}</span> de <span class="font-bold">{{ pagination.total_pages }}</span>
-                </p>
+        <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 flex-grow w-full pb-24">
+            <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h1 class="text-2xl font-bold text-slate-900">{{ page_title }}</h1>
+                <div class="relative w-full sm:w-72">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                    <input type="text" id="search-input" placeholder="Buscar producto..." value="{{ q or '' }}" class="h-10 w-full rounded-full border-0 bg-white pl-10 pr-4 text-sm shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-primary transition-all placeholder:text-slate-400">
+                </div>
             </div>
-            <div>
-                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+
+            <div id="product-grid" class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-8">
+                {% if products %}
+                    {% for p in products %}
+                    <div class="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ring-1 ring-slate-200/50 product-card" data-name="{{ p.name | lower }}">
+                
+                        <div class="aspect-[3/4] w-full overflow-hidden bg-slate-100 relative">
+                            <a href="/product/{{ p.id }}" class="block w-full h-full">
+                                <img src="{{ p.image }}" loading="lazy" alt="{{ p.name }}" class="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110" onerror="this.onerror=null; this.src='https://placehold.co/600x800/f1f5f9/94a3b8?text=Sin+Imagen';">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                            </a>
+
+                            {% if current_user %}
+                            <button onclick="toggleFavorite(event, '{{ p.id }}', this)" 
+                                    class="absolute top-2 left-2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-all hover:scale-110 active:scale-90 group/fav"
+                                    title="Añadir a favoritos">
+                                <span class="material-symbols-outlined text-xl transition-colors duration-200 {% if p.id in (current_user.favorites or []) %} text-red-500 font-fill {% else %} text-slate-400 group-hover/fav:text-red-500 {% endif %}">favorite</span>
+                            </button>
+                            {% endif %}
+
+                            {% if current_user and current_user.role == 'admin' %}
+                            <a href="/product/edit/{{ p.id }}" class="absolute top-2 right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow-sm backdrop-blur-sm transition hover:bg-primary hover:text-white" title="Editar Producto">
+                                <span class="material-symbols-outlined text-lg">edit</span>
+                            </a>
+                            {% endif %}
+
+                            <button onclick="addToCart('{{ p.id }}')" class="absolute bottom-4 right-4 translate-y-12 transform rounded-full bg-white p-3 text-slate-900 shadow-lg transition-all duration-300 hover:bg-primary hover:text-white group-hover:translate-y-0 active:scale-95 z-20" title="Agregar al carrito">
+                                <span class="material-symbols-outlined block text-xl">add_shopping_cart</span>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-1 flex-col p-4">
+                            <h3 class="text-sm font-semibold text-slate-900 line-clamp-2 mb-1">
+                                <a href="/product/{{ p.id }}" class="hover:text-primary transition-colors">{{ p.name }}</a>
+                            </h3>
+                    
+                            <div class="mt-auto flex items-center justify-between">
+                                <p class="text-lg font-bold text-slate-900">{{ p.price_fmt }}</p>
+                        
+                                <div class="flex items-center gap-1">
+                                    <button onclick="shareProduct(event, '{{ p.id }}')" 
+                                            class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-blue-50 hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            title="Compartir producto">
+                                        <span class="material-symbols-outlined text-lg">share</span>
+                                    </button>
+
+                                    {% if p.is_new %}
+                                    <span class="ml-1 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Nuevo</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-span-full py-20 text-center">
+                        <span class="material-symbols-outlined mx-auto mb-4 block text-6xl text-slate-300">inventory_2</span>
+                        <h3 class="text-lg font-medium text-slate-900">No hay productos disponibles</h3>
+                        <p class="mt-1 text-slate-500">Intenta añadir productos desde el panel de gestión.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if pagination and pagination.total_pages > 1 %}
+            <div class="mt-12 flex items-center justify-center border-t border-slate-200 bg-white px-4 py-3 sm:px-6">
+                <div class="flex flex-1 justify-between sm:hidden">
                     {% if pagination.has_prev %}
-                    <a href="/?page={{ pagination.prev_page }}{% if pagination.q %}&q={{ pagination.q }}{% endif %}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                        <span class="sr-only">Anterior</span>
-                        <span class="material-symbols-outlined">chevron_left</span>
-                    </a>
+                    <a href="/?page={{ pagination.prev_page }}{% if pagination.q %}&q={{ pagination.q }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Anterior</a>
                     {% else %}
-                    <span class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-200 cursor-not-allowed">
-                        <span class="material-symbols-outlined">chevron_left</span>
-                    </span>
+                    <button disabled class="relative inline-flex items-center rounded-md border border-gray-300 bg-slate-100 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed">Anterior</button>
                     {% endif %}
-
-                    <span class="relative z-10 inline-flex items-center bg-primary px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-                        {{ pagination.current_page }}
-                    </span>
-
                     {% if pagination.has_next %}
-                    <a href="/?page={{ pagination.next_page }}{% if pagination.q %}&q={{ pagination.q }}{% endif %}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                        <span class="sr-only">Siguiente</span>
-                        <span class="material-symbols-outlined">chevron_right</span>
-                    </a>
+                    <a href="/?page={{ pagination.next_page }}{% if pagination.q %}&q={{ pagination.q }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Siguiente</a>
                     {% else %}
-                    <span class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-200 cursor-not-allowed">
-                        <span class="material-symbols-outlined">chevron_right</span>
-                    </span>
+                    <button disabled class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-slate-100 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed">Siguiente</button>
                     {% endif %}
-                </nav>
+                </div>
+                <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div><p class="text-sm text-gray-700">Página <span class="font-bold">{{ pagination.current_page }}</span> de <span class="font-bold">{{ pagination.total_pages }}</span></p></div>
+                    <div>
+                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                            {% if pagination.has_prev %}
+                            <a href="/?page={{ pagination.prev_page }}{% if pagination.q %}&q={{ pagination.q }}{% endif %}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"><span class="material-symbols-outlined">chevron_left</span></a>
+                            {% else %}
+                            <span class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-200 cursor-not-allowed"><span class="material-symbols-outlined">chevron_left</span></span>
+                            {% endif %}
+                            <span class="relative z-10 inline-flex items-center bg-primary px-4 py-2 text-sm font-semibold text-white">{{ pagination.current_page }}</span>
+                            {% if pagination.has_next %}
+                            <a href="/?page={{ pagination.next_page }}{% if pagination.q %}&q={{ pagination.q }}{% endif %}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"><span class="material-symbols-outlined">chevron_right</span></a>
+                            {% else %}
+                            <span class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-300 ring-1 ring-inset ring-gray-200 cursor-not-allowed"><span class="material-symbols-outlined">chevron_right</span></span>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+
+        <div id="toast-notification" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 transform toast-enter">
+            <div class="flex items-center gap-3 bg-slate-900/90 text-white px-5 py-3 rounded-full shadow-xl backdrop-blur-md border border-white/10">
+                <span class="material-symbols-outlined text-green-400 text-xl">check_circle</span>
+                <span class="text-sm font-medium tracking-wide">Enlace copiado correctamente</span>
             </div>
         </div>
-    </div>
-    {% endif %}
 
-</main>
+        {% include 'partials/bottom_nav.html' %}
 
-{% include 'partials/bottom_nav.html' %}
-
-<script src="/static/js/index.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const menuBtn = document.getElementById('user-menu-btn');
-        const menuDropdown = document.getElementById('user-dropdown');
-        
-        if (menuBtn && menuDropdown) {
-            // Toggle dropdown
-            menuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isHidden = menuDropdown.classList.contains('hidden');
-                
-                if (isHidden) {
-                    menuDropdown.classList.remove('hidden');
-                    // Small delay to allow transition if we were using it for opacity
-                    requestAnimationFrame(() => {
-                        menuDropdown.classList.add('dropdown-enter-active');
-                    });
-                } else {
-                    menuDropdown.classList.add('hidden');
-                    menuDropdown.classList.remove('dropdown-enter-active');
-                }
-                
-                // Toggle ARIA
-                menuBtn.setAttribute('aria-expanded', !isHidden);
+        <script src="/static/js/index.js"></script>
+        <script>
+            // --- Logic: UI & Interactions ---
+            document.addEventListener('DOMContentLoaded', () => {
+                setupDropdown();
             });
 
-            // Close on click outside
-            document.addEventListener('click', (e) => {
-                if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+            function setupDropdown() {
+                const menuBtn = document.getElementById('user-menu-btn');
+                const menuDropdown = document.getElementById('user-dropdown');
+                if (!menuBtn || !menuDropdown) return;
+
+                menuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isHidden = menuDropdown.classList.contains('hidden');
+                    if (isHidden) {
+                        menuDropdown.classList.remove('hidden');
+                        requestAnimationFrame(() => menuDropdown.classList.add('dropdown-enter-active'));
+                    } else {
+                        closeDropdown();
+                    }
+                    menuBtn.setAttribute('aria-expanded', !isHidden);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) closeDropdown();
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeDropdown();
+                });
+
+                function closeDropdown() {
                     if (!menuDropdown.classList.contains('hidden')) {
-                        menuDropdown.classList.add('hidden');
                         menuDropdown.classList.remove('dropdown-enter-active');
+                        menuDropdown.classList.add('hidden');
                         menuBtn.setAttribute('aria-expanded', 'false');
                     }
                 }
-            });
-
-            // Close on Escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !menuDropdown.classList.contains('hidden')) {
-                    menuDropdown.classList.add('hidden');
-                    menuBtn.setAttribute('aria-expanded', 'false');
-                    menuBtn.focus();
-                }
-            });
-        }
-    });
-</script>
-
-<script>
-    async function toggleFavorite(e, productId, btn) {
-        e.preventDefault(); // Prevent navigating to product detail
-        e.stopPropagation();
-
-        const icon = btn.querySelector('span');
-        
-        // Optimistic UI Update (Immediate feedback)
-        const isCurrentlyFav = icon.classList.contains('text-red-500');
-        
-        if (isCurrentlyFav) {
-            icon.classList.remove('text-red-500', 'font-fill');
-            icon.classList.add('text-slate-400');
-        } else {
-            icon.classList.add('text-red-500', 'font-fill');
-            icon.classList.remove('text-slate-400');
-        }
-
-        try {
-            const response = await fetch(`/api/v1/users/favorites/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to toggle');
-            
-            const data = await response.json();
-            
-            // Re-sync with server state if needed
-            if (data.is_favorite) {
-                icon.classList.add('text-red-500', 'font-fill');
-                icon.classList.remove('text-slate-400');
-            } else {
-                icon.classList.remove('text-red-500', 'font-fill');
-                icon.classList.add('text-slate-400');
             }
+
+            // --- Logic: Favorites ---
+            async function toggleFavorite(e, productId, btn) {
+                e.preventDefault(); e.stopPropagation();
+                const icon = btn.querySelector('span');
+                const isFav = icon.classList.contains('text-red-500');
+        
+                // Optimistic Update
+                icon.classList.toggle('text-red-500', !isFav);
+                icon.classList.toggle('font-fill', !isFav);
+                icon.classList.toggle('text-slate-400', isFav);
+
+                try {
+                    const resp = await fetch(`/api/v1/users/favorites/${productId}`, { 
+                        method: 'POST', 
+                        headers: {'Content-Type': 'application/json'} 
+                    });
+                    if (!resp.ok) throw new Error();
+                    const data = await resp.json();
             
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
-            // Revert UI on error
-            if (isCurrentlyFav) {
-                icon.classList.add('text-red-500', 'font-fill');
-                icon.classList.remove('text-slate-400');
-            } else {
-                icon.classList.remove('text-red-500', 'font-fill');
-                icon.classList.add('text-slate-400');
+                    // Re-sync
+                    const active = data.is_favorite;
+                    icon.classList.toggle('text-red-500', active);
+                    icon.classList.toggle('font-fill', active);
+                    icon.classList.toggle('text-slate-400', !active);
+                } catch (err) {
+                    // Revert
+                    icon.classList.toggle('text-red-500', isFav);
+                    icon.classList.toggle('font-fill', isFav);
+                    icon.classList.toggle('text-slate-400', !isFav);
+                }
             }
-            alert('No se pudo actualizar favoritos. Intenta de nuevo.');
-        }
-    }
-    
-    // Helper helper class for filled icon
-    const style = document.createElement('style');
-    style.innerHTML = `.font-fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }`;
-    document.head.appendChild(style);
-</script>
-</body>
-</html>
+
+            // --- Logic: Share ---
+            function shareProduct(e, productId) {
+                e.preventDefault(); e.stopPropagation();
+        
+                const url = `${window.location.origin}/product/${productId}`;
+        
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast();
+                }).catch(err => console.error('Error copy:', err));
+            }
+
+            let toastTimeout;
+            function showToast() {
+                const toast = document.getElementById('toast-notification');
+        
+                // Reset state
+                clearTimeout(toastTimeout);
+                toast.classList.remove('toast-enter', 'toast-exit-active');
+                toast.classList.add('toast-enter-active');
+        
+                // Hide after delay
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('toast-enter-active');
+                    toast.classList.add('toast-exit-active');
+                }, 2500);
+            }
+        </script>
+        </body>
+        </html>
