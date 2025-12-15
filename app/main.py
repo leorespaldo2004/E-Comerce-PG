@@ -6,7 +6,8 @@ Adheres to SOLID and Clean Code principles.
 from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
+from fastapi import Response
 from pathlib import Path
 from dotenv import load_dotenv
 from bson import ObjectId
@@ -134,6 +135,45 @@ async def session_middleware(request: Request, call_next):
         request.state.user = user
         
     return await call_next(request)
+
+
+@app.get("/logout")
+async def logout(request: Request):
+    """Terminate the current session and redirect to the home page.
+
+    This clears the session cookie stored under `SESSION_COOKIE_NAME` and
+    attempts to remove the server-side session document (best-effort).
+    """
+    sid = request.cookies.get(SESSION_COOKIE_NAME)
+    response = RedirectResponse(url="/", status_code=302)
+
+    if sid:
+        try:
+            # Run blocking DB call in thread
+            await asyncio.to_thread(mongo.delete_session, sid)
+        except Exception:
+            # Best-effort cleanup; do not fail the logout if DB call fails
+            pass
+        # Remove cookie from client
+        response.delete_cookie(SESSION_COOKIE_NAME)
+
+    return response
+
+
+@app.get("/profile", response_class=HTMLResponse)
+async def view_profile(request: Request):
+    """Render the user profile page for authenticated users.
+
+    If the user is not authenticated, redirect to the login page.
+    """
+    user = getattr(request.state, "user", None)
+    if not user:
+        return RedirectResponse(url="/login")
+
+    return templates.TemplateResponse(
+        "profile.html",
+        {"request": request, "current_user": user, "page_title": "Mi Perfil"},
+    )
 
 
 # --- HTML Routes (View Controller) ---
